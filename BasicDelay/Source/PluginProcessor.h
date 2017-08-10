@@ -56,9 +56,17 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+	float delayTime;
+	float feedback;
+
 private:
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BasicDelayAudioProcessor)
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BasicDelayAudioProcessor)
+
+	AudioSampleBuffer delayBuffer;
+	int delayBufferLength;
+	int readIndex;
+	int writeIndex;
 };
 
 

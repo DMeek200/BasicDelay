@@ -25,6 +25,20 @@ BasicDelayAudioProcessor::BasicDelayAudioProcessor()
                        )
 #endif
 {
+	// Some feedback
+	feedback = 0.5;
+
+	// Delay of 0.2 seconds
+	delayTime = 0.2;
+
+	// Start reading from the start of the circular buffer
+	readIndex = 0;
+
+	// Set the write index ahead of the read index
+	writeIndex = delayTime;
+
+	// Initial delay buffer size
+	delayBufferLength = 0;
 }
 
 BasicDelayAudioProcessor::~BasicDelayAudioProcessor()
@@ -87,8 +101,19 @@ void BasicDelayAudioProcessor::changeProgramName (int index, const String& newNa
 //==============================================================================
 void BasicDelayAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    // Maximum delay of 1 second
+	delayBufferLength = (int)(sampleRate);
+
+	// Set the buffer to 1 channel of the size of delayBufferLength using setSize
+	delayBuffer.setSize(1, delayBufferLength);
+
+	// Set all the samples in the buffer to zero
+	delayBuffer.clear();
+
+	// Important: calculate the position of the read index relative to the write index
+	// i.e. the delay time in samples
+	readIndex = (int)(writeIndex - (delayTime * delayBufferLength) + delayBufferLength) % delayBufferLength;
+
 }
 
 void BasicDelayAudioProcessor::releaseResources()
@@ -135,14 +160,10 @@ void BasicDelayAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        float* channelData = buffer.getWritePointer (channel);
+	// channelData is an array of length numSamples which contain the audio data for one channel
+	float *channelData = buffer.getWritePointer(0);
 
-        // ..do something to the data...
-    }
+	// PICK UP HERE
 }
 
 //==============================================================================
